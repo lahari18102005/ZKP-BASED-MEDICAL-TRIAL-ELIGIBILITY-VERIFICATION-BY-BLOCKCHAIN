@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Test - Medical Authority</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Medical Authority System Test</h1>
+    
+    <div class="test-section">
+        <h2>Storage Test</h2>
+        <div id="storage-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>API Test</h2>
+        <div id="api-result"></div>
+        <button onclick="testAPI()">Test Login API</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Frontend Test</h2>
+        <div id="frontend-result">
+            <a href="../" target="_blank">Open Main Application</a>
+        </div>
+    </div>
+
+    <script>
+        // Test storage
+        function testStorage() {
+            const result = document.getElementById('storage-result');
+            let storageWorks = false;
+            
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                storageWorks = true;
+                result.innerHTML = '<span class="success">✅ LocalStorage: Working</span>';
+            } catch (e) {
+                result.innerHTML = '<span class="error">❌ LocalStorage: Blocked</span><br><span class="info">ℹ️ Using memory fallback</span>';
+            }
+        }
+        
+        // Test API
+        async function testAPI() {
+            const result = document.getElementById('api-result');
+            result.innerHTML = '<span class="info">Testing...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'doctor1@medical.gov',
+                        password: 'SecurePass123!'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <span class="success">✅ API: Working</span><br>
+                        <span class="info">Token: ${data.token ? 'Generated' : 'Missing'}</span><br>
+                        <span class="info">Signature: ${data.signature ? 'Generated' : 'Missing'}</span>
+                    `;
+                } else {
+                    result.innerHTML = `<span class="error">❌ API: Error ${response.status}</span>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ API: ${error.message}</span>`;
+            }
+        }
+        
+        // Run tests on load
+        window.onload = function() {
+            testStorage();
+        };
+    </script>
+</body>
+</html>
